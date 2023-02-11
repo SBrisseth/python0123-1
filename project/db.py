@@ -4,3 +4,4 @@ class Conection:
         self.con=sqlite3.connect(file_db)
     def getCursor(self):
         return self.con.cursor()
+   

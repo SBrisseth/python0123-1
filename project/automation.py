@@ -1,26 +1,71 @@
+import openpyxl
 import pandas as pd
+from tabulate import tabulate
 import os
 import db
-message="""
-    1)Insertar data:
-    2)Actualizar data del dolar
-"""
-print(message)
-a=int(input('ingrese la tarea a realizar: '))
-
 
 def insertData():
-    #obtiene la ruta absoluta
-    path_=os.getcwd()+'\dataTienda.csv'
-    #conection a bd
+    compra_dolar = float(input("ingrese valor compra:"))
+    venta_dolar = float(input("ingrese valor venta:"))
+    fecha = input("ingrese valor fecha:")
+    data = (compra_dolar,venta_dolar,fecha)
+    query="INSERT INTO CAMBIO_DOLAR VALUES(NULL,?,?,?)"
     conn=db.Conection('tienda.db')
     cursor=conn.getCursor()
-    print(path_)
-    df = pd. read_csv (path_, sep = ";") 
-    ### logica para insertar 
-    for i,fila in df.iterrows():
-        print(fila['ORDER_ID'])
+    cursor.execute(query,data).fetchall()
+    conn.con.commit()
+    print("data insertada")
 
-def updateDolar():
-    url = 'https://api.apis.net.pe/v1/tipo-cambio-sunat' #tipo cambio sunat
-    pass
+
+def readData():
+    conn=db.Conection('tienda.db')
+    cursor=conn.getCursor()
+    query="SELECT * FROM CAMBIO_DOLAR"
+    result = cursor.execute(query).fetchall()
+    key_list=['ID','COMPRA DOLAR','VENTA DOLAR','FECHA']
+    df=pd.DataFrame(result,columns=key_list)
+    print(tabulate(df,headers=key_list,tablefmt='psql'))
+    print("desea generar un reporte ?")
+    b=input("si")
+    if (b =='si'):
+        df.to_excel('Historico_Dolar.xlsx',sheet_name='hoja1',index=False)
+    
+
+
+
+def updateData():
+    id = int(input("INGRESA EL ID: "))
+    if(id > 0):
+        compra_dolar = float(input("ingrese valor compra:"))
+        venta_dolar = float(input("ingrese valor venta:"))
+        fecha = input("ingrese valor fecha:")
+        data = (compra_dolar,venta_dolar,fecha,id)
+        query="UPDATE CAMBIO_DOLAR SET COMPRA_DOLAR=?,VENTA_DOLAR=?,FECHA =? WHERE ID = ? "
+        conn=db.Conection('tienda.db')
+        cursor=conn.getCursor()
+        result=cursor.execute(query,data).fetchall()
+        conn.con.commit()
+        print("data actualizada!")
+        print(result)
+    else:
+        print("Se require un ID")
+   
+
+
+
+while True:
+    message="""
+            1)Insertar data:
+            2)Actualizar data del dolar
+                2.1) Generar un reporte
+            """
+    print(message)
+    a=int(input('ingrese la tarea a realizar: '))
+    if(a==1):
+        insertData()
+        readData()
+    elif(a==2):
+        updateData()
+        readData()
+    else:
+        break

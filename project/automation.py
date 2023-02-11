@@ -46,7 +46,7 @@ def updateData():
         result=cursor.execute(query,data).fetchall()
         conn.con.commit()
         print("data actualizada!")
-        print(result)
+        # print(result)
     else:
         print("Se require un ID")
    
@@ -55,17 +55,26 @@ def updateData():
 
 while True:
     message="""
-            1)Insertar data:
-            2)Actualizar data del dolar
-                2.1) Generar un reporte
+            1)Mostrar registros
+            2)Insertar data:
+           
+            3)Actualizar data del dolar
+                3.1) Generar un reporte
             """
     print(message)
     a=int(input('ingrese la tarea a realizar: '))
     if(a==1):
-        insertData()
         readData()
     elif(a==2):
+        insertData()
+        readData()
+    elif(a==3):
         updateData()
         readData()
+    #     insertData()
+    #     readData()
+    # elif(a==2):
+    #     updateData()
+    #     readData()
     else:
         break
